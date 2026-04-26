@@ -60,7 +60,7 @@ body {
 
 .app-main {
   display: flex;
-  gap: 1.5rem;
+  gap: 4.5rem;
   flex: 1;
   min-height: 0; /* Important for flex children scrolling */
 }

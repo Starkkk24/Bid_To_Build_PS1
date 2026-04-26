@@ -70,7 +70,7 @@ const IDCardForm = ({ onUploadSuccess }) => {
         <div className="form-card">
             <div className="form-header">
                 <h2>Request New ID Card</h2>
-                <p>Enter details to generate a smart ID card.</p>
+                <p>Enter details to generate a smart ID.</p>
             </div>
             
             {error && <div className="alert alert-error">{error}</div>}

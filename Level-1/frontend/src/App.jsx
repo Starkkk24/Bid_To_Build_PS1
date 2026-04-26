@@ -16,7 +16,6 @@ function App() {
     <div className="app-container">
       <header className="app-header">
         <h1>Smart ID Card System</h1>
-        <p>Level 1: Synchronous Processing Monolith</p>
       </header>
 
       <main className="app-main">
