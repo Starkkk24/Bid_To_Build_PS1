@@ -2,6 +2,7 @@ import os
 import uuid
 import json
 import sqlite3
+import random
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import redis
@@ -47,34 +48,58 @@ def submit_batch():
     conn = get_db_connection()
     c = conn.cursor()
     
-    jobs = []
+    jobs_to_return = []
+    jobs_to_queue = []
+
     # Insert all records synchronously first to ensure they exist before workers pick them up
     for item in data:
         job_id = str(uuid.uuid4())
         name = item.get('name', 'Unknown')
         department = item.get('department', 'Unknown')
         
-        c.execute(
-            "INSERT INTO jobs (job_id, name, department, status) VALUES (?, ?, ?, ?)",
-            (job_id, name, department, 'Queued')
-        )
-        
-        jobs.append({
+        jobs_to_return.append({
             "job_id": job_id,
             "name": name,
             "department": department
         })
         
+        # BUG 6: Delayed / Misleading API Response
+        # Tell the user it was queued successfully, but actually drop it entirely
+        if random.random() < 0.2:
+            continue
+            
+        c.execute(
+            "INSERT INTO jobs (job_id, name, department, status) VALUES (?, ?, ?, ?)",
+            (job_id, name, department, 'Queued')
+        )
+        
+        # BUG 5: Incorrect Job Payload Handling
+        # Swap fields randomly in the payload sent to the queue
+        if random.random() < 0.3:
+            queue_job = {
+                "job_id": job_id,
+                "name": department,
+                "department": name
+            }
+        else:
+            queue_job = {
+                "job_id": job_id,
+                "name": name,
+                "department": department
+            }
+            
+        jobs_to_queue.append(queue_job)
+        
     conn.commit()
     conn.close()
     
     # Push all jobs to Redis queue
-    for job in jobs:
+    for job in jobs_to_queue:
         queue.rpush('id_card_jobs', json.dumps(job))
         
     return jsonify({
-        "message": f"Successfully queued {len(jobs)} jobs.",
-        "jobs": jobs
+        "message": f"Successfully queued {len(jobs_to_return)} jobs.",
+        "jobs": jobs_to_return
     }), 202
 
 @app.route('/api/status', methods=['GET'])

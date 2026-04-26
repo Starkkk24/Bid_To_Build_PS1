@@ -23,7 +23,13 @@ function App() {
 
   useEffect(() => {
     loadStatuses();
-    const interval = setInterval(loadStatuses, 2000); // Poll every 2 seconds
+    const interval = setInterval(() => {
+      // BUG 1: Stale Polling Bug
+      // Randomly skip the fetch to make the UI refresh inconsistently and feel stale
+      if (Math.random() > 0.4) {
+        loadStatuses();
+      }
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
 
@@ -127,11 +133,14 @@ function App() {
               {jobs.length === 0 ? (
                 <div className="empty-state">No jobs in system.</div>
               ) : (
-                jobs.map(job => (
+                // BUG 2: Partial Rendering Bug
+                // Only render the first 5 jobs, hiding the rest of the queue
+                jobs.slice(0, 5).map(job => (
                   <div key={job.job_id} className="job-item">
                     <span className="job-id">{job.job_id.substring(0,8)}</span>
-                    <span className="job-name" title={job.name}>{job.name}</span>
-                    <span className="job-dept">{job.department}</span>
+                    {/* BUG 3: Incorrect Field Display - swapped name and department */}
+                    <span className="job-name" title={job.department}>{job.department}</span>
+                    <span className="job-dept">{job.name}</span>
                     <span className={`job-status ${job.status.toLowerCase()}`}>{job.status}</span>
                   </div>
                 ))
