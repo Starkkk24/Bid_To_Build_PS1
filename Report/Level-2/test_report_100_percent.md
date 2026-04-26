@@ -9,7 +9,7 @@
 ## 2. Missing/Dropped Jobs Test
 * **Input**: Submit a batch of 50 jobs.
 * **Expected Behavior**: All 50 jobs eventually reach the 'Printed' state.
-* **Actual Behavior**: ~10% of jobs are completely missing from the database (Fake Gateway Success). Another ~20% remain in 'Queued' state forever despite the worker popping them from Redis.
+* **Actual Behavior**: ~20% of jobs are completely missing from the database (Fake Gateway Success). Another ~20% remain in 'Queued' state forever despite the worker popping them from Redis.
 * **Failure Reason**: Gateway explicitly skips database insertion and queuing for specific jobs while claiming success. The worker explicitly runs `queue.lpop()` and `continue` without processing.
 
 ## 3. Worker Crash Resilience Test

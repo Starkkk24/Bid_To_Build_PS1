@@ -3,8 +3,8 @@
 ```log
 [2026-04-27 10:15:22,104] INFO in app: 127.0.0.1 - - "POST /api/upload HTTP/1.1" 200 -
 [2026-04-27 10:15:22,106] WARNING in app: Database commit for job_id 8a4b-11ec-b909-0242ac120002 successful. Status: Pending.
-[2026-04-27 10:15:22,108] ERROR in app: [WinError 32] The process cannot access the file because it is being used by another process: 'uploads/8a4b-11ec-b909-0242ac120002_profile.jpg'
-[2026-04-27 10:15:22,110] WARNING in app: Suppressed Exception. Continuing execution.
+[2026-04-27 10:15:22,108] ERROR in app: IOError: [Errno 28] No space left on device: 'uploads/8a4b-11ec-b909-0242ac120002_profile.jpg'
+[2026-04-27 10:15:22,110] WARNING in app: File save exception caught. Continuing execution.
 [2026-04-27 10:15:22,112] INFO in app: Status updated to 'Printed' for job_id 8a4b-11ec-b909-0242ac120002.
 [2026-04-27 10:15:22,550] ERROR in process_print_job: Exception: Simulated printer jam on job 8a4b-11ec-b909-0242ac120002
 [2026-04-27 10:15:22,552] WARNING in app: Print job exception caught. Response returned as 200 OK.
