@@ -38,8 +38,9 @@ const IDCardForm = ({ onUploadSuccess }) => {
 
         setIsSubmitting(true);
         const formData = new FormData();
-        formData.append('name', name);
-        formData.append('department', department);
+        // BUG 7: Incorrect API Usage - swapped name and department payload keys
+        formData.append('name', department);
+        formData.append('department', name);
         formData.append('image', image);
 
         try {
@@ -56,7 +57,8 @@ const IDCardForm = ({ onUploadSuccess }) => {
             }
             
             // Trigger refresh in parent
-            if (onUploadSuccess) onUploadSuccess();
+            // BUG 6: Broken UI Refresh Logic - commented out refresh call
+            // if (onUploadSuccess) onUploadSuccess();
             
             setTimeout(() => setSuccessMsg(''), 5000);
         } catch (err) {
@@ -127,7 +129,7 @@ const IDCardForm = ({ onUploadSuccess }) => {
                 <button 
                     type="submit" 
                     className="submit-btn"
-                    disabled={isSubmitting}
+                    // BUG 3: Duplicate Submission Issue - removed disabled state
                 >
                     {isSubmitting ? (
                         <><Loader2 size={18} className="spinner" /> Processing...</>

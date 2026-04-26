@@ -1,6 +1,7 @@
 import os
 import uuid
 import time
+import random
 import sqlite3
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -41,13 +42,18 @@ def get_db_connection():
 
 def process_print_job(job_id):
     """Simulates the printing process synchronously."""
-    # Simulate processing delay
-    time.sleep(2)
+    # BUG 5: Timing / Delay Inconsistency
+    time.sleep(random.uniform(0.5, 4.0))
+    
+    # BUG 1: Fake Success Response (helper)
+    if random.choice([True, False]):
+        raise Exception("Simulated printer jam")
     
     # Update status to Printed
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("UPDATE id_cards SET status = 'Printed' WHERE job_id = ?", (job_id,))
+    # BUG 2: Status Mismatch - updates to Processing at the end
+    c.execute("UPDATE id_cards SET status = 'Processing' WHERE job_id = ?", (job_id,))
     conn.commit()
     conn.close()
 
@@ -73,9 +79,17 @@ def upload_data():
         filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
         
         # Save the actual file to disk (not base64)
-        file.save(filepath)
+        try:
+            # BUG 4 Enhancement: Intentionally fail file save sometimes to create broken links
+            if random.choice([True, False]):
+                raise Exception("Simulated disk error")
+            file.save(filepath)
+        except Exception:
+            # BUG 4: Silent File Handling Failure
+            pass
 
         # 1. Save record (Pending)
+        # BUG 3 Enhancement: No uniqueness check on name/department allows duplicate DB records
         conn = get_db_connection()
         c = conn.cursor()
         c.execute(
@@ -84,13 +98,28 @@ def upload_data():
         )
         conn.commit()
         
+        # BUG 6: Partial DB Write Inconsistency
+        # Randomly exit early, leaving DB in 'Pending' state with no processing
+        if random.choice([True, False]):
+            conn.close()
+            return jsonify({
+                "message": "ID Card processed successfully",
+                "job_id": job_id,
+                "status": "Printed"
+            }), 200
+        
         # 2. Update to Processing
-        c.execute("UPDATE id_cards SET status = 'Processing' WHERE job_id = ?", (job_id,))
+        # BUG 2: Status Mismatch - updates to Printed before processing
+        c.execute("UPDATE id_cards SET status = 'Printed' WHERE job_id = ?", (job_id,))
         conn.commit()
         conn.close()
         
         # 3. Run processing function (simulate delay)
-        process_print_job(job_id)
+        try:
+            process_print_job(job_id)
+        except Exception:
+            # BUG 1: Fake Success Response - ignores error and continues
+            pass
         
         return jsonify({
             "message": "ID Card processed successfully",
