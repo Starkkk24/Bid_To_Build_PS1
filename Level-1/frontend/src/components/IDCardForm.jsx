@@ -83,7 +83,7 @@ const IDCardForm = ({ onUploadSuccess }) => {
                         type="text" 
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="John Doe"
+                        placeholder="Stark"
                         disabled={isSubmitting}
                     />
                 </div>
@@ -94,7 +94,7 @@ const IDCardForm = ({ onUploadSuccess }) => {
                         type="text" 
                         value={department}
                         onChange={(e) => setDepartment(e.target.value)}
-                        placeholder="Engineering"
+                        placeholder="CSE"
                         disabled={isSubmitting}
                     />
                 </div>
