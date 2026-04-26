@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./shared:/app/shared
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DB_PATH=/app/shared/database.db
+    depends_on:
+      - redis
+
+  worker:
+    build: ./worker
+    volumes:
+      - ./shared:/app/shared
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DB_PATH=/app/shared/database.db
+    depends_on:
+      - redis
+    # We can scale this up easily via `docker-compose up --scale worker=3`
