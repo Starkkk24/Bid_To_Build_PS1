@@ -46,7 +46,6 @@ const IDCardForm = ({ onUploadSuccess }) => {
             await submitIDCard(formData);
             setSuccessMsg('ID Card processed successfully!');
             
-            // Reset form
             setName('');
             setDepartment('');
             setImage(null);
@@ -55,7 +54,6 @@ const IDCardForm = ({ onUploadSuccess }) => {
                 fileInputRef.current.value = '';
             }
             
-            // Trigger refresh in parent
             // if (onUploadSuccess) onUploadSuccess();
             
             setTimeout(() => setSuccessMsg(''), 5000);
@@ -77,9 +75,52 @@ const IDCardForm = ({ onUploadSuccess }) => {
             {successMsg && <div className="alert alert-success"><CheckCircle2 size={18} /> {successMsg}</div>}
 
             <form onSubmit={handleSubmit} className="id-form">
-                {/* Name input field */}
-                {/* Department input field */}
-                {/* Image upload zone */}
+                <div className="form-group">
+                    <label>Full Name</label>
+                    <input 
+                        type="text" 
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Stark"
+                        disabled={isSubmitting}
+                    />
+                </div>
+                
+                <div className="form-group">
+                    <label>Department</label>
+                    <input 
+                        type="text" 
+                        value={department}
+                        onChange={(e) => setDepartment(e.target.value)}
+                        placeholder="CSE"
+                        disabled={isSubmitting}
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label>Profile Image</label>
+                    <div 
+                        className="image-upload-zone"
+                        onClick={() => !isSubmitting && fileInputRef.current?.click()}
+                    >
+                        <input 
+                            type="file" 
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            disabled={isSubmitting}
+                        />
+                        {imagePreview ? (
+                            <img src={imagePreview} alt="Preview" className="image-preview" />
+                        ) : (
+                            <div className="upload-placeholder">
+                                <Upload size={32} />
+                                <span>Click to upload photo</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
                 <button 
                     type="submit" 

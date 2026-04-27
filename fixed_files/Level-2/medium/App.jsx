@@ -32,8 +32,20 @@ function App() {
   }, []);
 
   const handleUpload = async () => {
-    // ... batch parsing and upload logic ...
-    // Calls submitBatch(data) and then loadStatuses()
+    try {
+      let data = JSON.parse(batchInput);
+      if (!Array.isArray(data)) {
+        data = [data];
+      }
+      setIsUploading(true);
+      await submitBatch(data);
+      setBatchInput('');
+      await loadStatuses();
+    } catch (error) {
+      alert("Invalid JSON format or submission failed.\nExample: [{\"name\":\"Alice\",\"department\":\"HR\"}]");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const stats = {
@@ -48,17 +60,55 @@ function App() {
       <header className="dashboard-header">
         <div className="header-content">
           <h1>Distributed ID Card System (Level 2)</h1>
+          <p>Microservices Architecture &middot; Gateway &middot; Redis &middot; Workers</p>
         </div>
       </header>
 
       <main className="dashboard-main">
         <div className="metrics-row">
-          {/* Metrics cards showing stats.total, stats.queued, etc. */}
+          <div className="metric-card">
+            <div className="metric-icon"><Users /></div>
+            <div className="metric-info">
+              <h3>Total Jobs</h3>
+              <p>{stats.total}</p>
+            </div>
+          </div>
+          <div className="metric-card warning">
+            <div className="metric-icon"><Server /></div>
+            <div className="metric-info">
+              <h3>Queued</h3>
+              <p>{stats.queued}</p>
+            </div>
+          </div>
+          <div className="metric-card primary">
+            <div className="metric-icon"><Activity /></div>
+            <div className="metric-info">
+              <h3>Processing</h3>
+              <p>{stats.processing}</p>
+            </div>
+          </div>
+          <div className="metric-card success">
+            <div className="metric-icon"><CheckCircle /></div>
+            <div className="metric-info">
+              <h3>Printed</h3>
+              <p>{stats.printed}</p>
+            </div>
+          </div>
         </div>
 
         <div className="content-grid">
           <div className="panel upload-panel">
-            {/* Batch upload textarea + submit button */}
+            <h2>Batch Upload</h2>
+            <p>Paste JSON array of users to simulate batch loading.</p>
+            <textarea
+              value={batchInput}
+              onChange={(e) => setBatchInput(e.target.value)}
+              placeholder={'[\n  { "name": "Stark", "department": "IOT" },\n  { "name": "Shreya", "department": "CSE" }\n]'}
+              rows={8}
+            />
+            <button onClick={handleUpload} disabled={isUploading || !batchInput}>
+              <Upload size={18} /> {isUploading ? 'Pushing to Queue...' : 'Submit Batch'}
+            </button>
           </div>
 
           <div className="panel live-queue-panel">
